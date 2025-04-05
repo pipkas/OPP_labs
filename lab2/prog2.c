@@ -84,15 +84,18 @@ char is_it_the_end(long double* local_matrix, long double* vector_b_local, long 
     for (int i = 0; i < count_of_str; i++)
         new_vector[i] -= vector_b_local[i];
     char res = FALSE;
-    long double norm1, norm2;
-    if (rank == 0)
+
+    if (rank == 0){
+        long double norm1, norm2;
         norm1 = calc_norm(new_vector, count_of_str);
-    if (rank == 1 || (num_of_proc == 1))
         norm2 = E * calc_norm(vector_b_local, count_of_str);
-    MPI_Bcast(&norm1, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&norm2, 1, MPI_LONG_DOUBLE, (num_of_proc == 1) ? 0 : 1, MPI_COMM_WORLD);
-    if (norm1 < norm2)
-        res = TRUE;
+        if (norm1 < norm2)
+            res = TRUE;
+    }
+    //MPI_Bcast(&norm1, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
+    //MPI_Bcast(&norm2, 1, MPI_LONG_DOUBLE, (num_of_proc == 1) ? 0 : 1, MPI_COMM_WORLD);
+
+    MPI_Bcast(&res, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
     free(new_vector);
     return res;
 }

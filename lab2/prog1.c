@@ -64,15 +64,18 @@ char is_it_the_end(long double* local_matrix, long double* vector_b, long double
     mult_matrix_by_vector(local_matrix, vector_x, new_vector, rank, num_of_proc, N);
     vector_diff(new_vector, vector_b, new_vector, N);
     char res = FALSE;
-    long double norm1, norm2;
-    if (rank == 0)
+
+    if (rank == 0){
+        long double norm1, norm2;
         norm1 = calc_norm(new_vector, N);
-    if (rank == 1 || (num_of_proc == 1))
         norm2 = E * calc_norm(vector_b, N);
-    MPI_Bcast(&norm1, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&norm2, 1, MPI_LONG_DOUBLE, (num_of_proc == 1) ? 0 : 1, MPI_COMM_WORLD);
-    if (norm1 < norm2)
-        res = TRUE;
+        if (norm1 < norm2)
+            res = TRUE;
+    }
+    //MPI_Bcast(&norm1, 1, MPI_LONG_DOUBLE, 0, MPI_COMM_WORLD);
+    //MPI_Bcast(&norm2, 1, MPI_LONG_DOUBLE, (num_of_proc == 1) ? 0 : 1, MPI_COMM_WORLD);
+
+    MPI_Bcast(&res, 1, MPI_CHAR, 0, MPI_COMM_WORLD);
     free(new_vector);
     return res;
 }
